@@ -1,0 +1,3808 @@
+openapi: 3.0.0
+servers:
+  - url: https://stage.coginsight.net
+info:
+  version: "1.0.0"
+  title: Coginsight Dashboard OpenAPI
+  x-logo:
+    url: 'https://v2.coginsight.net/console/assets/img/logo.png'
+    backgroundColor: '#324249'
+    href: 'https://forum.coginsight.net'
+  description: |
+    ---
+    # Disclaimer
+    
+    본 문서는 Mindwareworks 의 CogInsight 솔루션 서비스 연동을 위한 규격을 설명하고 있습니다. 
+
+    본 문서는 기술적인 오류나 구문의 오류를 포함하고 있을 수 있습니다.  
+    당사는 본 문서에 포함된 정보의 정확성을 유지하기 위해 최선을 다할 것이나,
+    본 문서의 기술적 오류, 잘못된 정보가 포함되어 있 지 않다는 것을 보증하지 않습니다.
+    
+    본 문서는 특별한 언급 없이 지속적으로 수정과 보완할 것이나 본 문서에 기술된 정보로 인하여  
+    발생할 수 있는 직접적 혹은 간접적 손해, 데이터, 프로그램 기타 무형의 재산에 관한 손실, 사용 이익의 손실 등에 관하여   
+    비록 이와 같은 손해 가능성에 대해 사전에 알고 있었다고 해도 손해 배상 등 기타 책임을 지지 않습니다.
+    
+    사용자는 본 문서를 구입하거나, 전자문서로 다운로드 받거나, 사용을 시작함으로써, 본 사항에 명시된 내용을 이해하며, 이에 동의하는 것으로 간주합니다.   
+    또한 본 내용이 이전의 문구나 기타 고지에 우선 하는 것임을 인정합니다.
+    
+    ---
+    
+    대시보드의 데이터 조회 및 관리를 위해 제공되는 API 입니다.
+    
+    `챗봇 다이얼로그 등 고객 서비스를 위한 용도로 사용하는 경우 성능 이슈가 발생할 수 있습니다.`
+    
+    ---
+tags:
+  - name: Log
+    description: 메세지 로그
+paths:
+  '/apis/projects/{projectId}/log/-/count':
+    get:
+      tags:
+        - Log
+      summary: 메세지 로그 건수 조회
+      description: 메세지 로그의 건수를 조회합니다.
+      operationId: GetLogCount
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: channel
+          required: false
+          description: 채널 정보
+          schema:
+            type: string
+        - in: query
+          name: userKey
+          required: false
+          description: 사용자 Key
+          schema:
+            type: string
+        - in: query
+          name: sessionId
+          required: false
+          description: 사용사 세션 ID
+          schema:
+            type: string
+        - in: query
+          name: error
+          required: false
+          description: error 로그만 조회
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/MessageLogCount'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/log':
+    get:
+      tags:
+        - Log
+      summary: 메세지 로그 목록 조회
+      description: 메세지 로그를 모두 조회합니다.
+      operationId: GetLogs
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: channel
+          required: false
+          description: 채널 정보
+          schema:
+            type: string
+        - in: query
+          name: userKey
+          required: false
+          description: 사용자 Key
+          schema:
+            type: string
+        - in: query
+          name: sessionId
+          required: false
+          description: 사용사 세션 ID
+          schema:
+            type: string
+        - in: query
+          name: error
+          required: false
+          description: error 로그만 조회
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          name: context
+          required: false
+          description: 조회할 context 필드명 | 콤마(,)로 구분하며(field1, field2), 모든 필드를 가져오려면 * 사용
+          schema:
+            type: string
+        - in: query
+          name: skip_id
+          required: false
+          description: 스킵할 로그 ID (_id) | 해당 로그 ID 이후부터 조회됨
+          schema:
+            type: string
+        - in: query
+          name: _notrunc
+          required: false
+          description: 상세 내용(input,output,intents,entities,trace) 조회
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: 정상 (_notrunc:false)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/MessageLogs'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/log/{logId}':
+    get:
+      tags:
+        - Log
+      summary: 메세지 로그 조회
+      description: 메세지 로그를 한 건 조회합니다.
+      operationId: GetLog
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: logId
+          required: true
+          description: 로그 ID
+          schema:
+            type: string
+        - in: query
+          name: context
+          required: false
+          description: 조회할 context 필드명 ・ 콤마(,)로 구분하며(field1, field2), 모든 필드를 가져오려면 * 사용
+          schema:
+            type: string
+        - in: query
+          name: _notrunc
+          required: false
+          description: 상세 내용(input,output,intents,entities,trace) 조회
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: 정상 (_notrunc:true)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/MessageLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/history/count':
+    get:
+      tags:
+        - History
+      summary: 대화 이력 건수 조회
+      description: 사용자의 세션 건수를 조회합니다.
+      operationId: GetHistoryCount
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: userKey
+          required: true
+          description: 사용자 Key
+          schema:
+            type: string
+        - in: query
+          name: sessionId
+          required: false
+          description: 사용사 세션 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/HistoryCount'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/history':
+    get:
+      tags:
+        - History
+      summary: 대화 이력 조회
+      description: 사용자의 대화 이력을 조회합니다.
+      operationId: GetHistories
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: userKey
+          required: true
+          description: 사용자 Key
+          schema:
+            type: string
+        - in: query
+          name: sessionId
+          required: false
+          description: 사용사 세션 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/Histories'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/feedback/count':
+    get:
+      tags:
+        - Feedback
+      summary: 피드백 건수 조회
+      description: 피드백 로그의 건수를 조회합니다.
+      operationId: GetFeedbackCount
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/FeedbackCount'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/feedback':
+    get:
+      tags:
+        - Feedback
+      summary: 피드백 목록 조회
+      description: 피드백 로그를 조회합니다.
+      operationId: GetFeedbacks
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/Feedbacks'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/esd/{schema}/records/-/count':
+    get:
+      tags:
+        - ESD
+      summary: ESD 데이터 건수 조회
+      description: ESD 데이터 건수를 조회합니다.
+      operationId: GetEsdRecordsCount
+      parameters:
+        - in: path
+          name: schema
+          required: true
+          description: 스키마 명 (URL Encording 필요)
+          schema:
+            type: string
+        - in: query
+          name: field1
+          required: false
+          description: 입력한 값을 포함
+          schema:
+            type: string
+        - in: query
+          name: field2.from
+          required: false
+          description: 입력한 값 이상
+          schema:
+            type: number
+        - in: query
+          name: field2.to
+          required: false
+          description: 입력한 값 이하
+          schema:
+            type: number
+        - in: query
+          name: field3
+          required: false
+          description: 입력한 값 일치
+          schema:
+            type: boolean
+        - in: query
+          name: createdAt.from
+          required: false
+          description: 'createdAt, updatedAt : 입력한 값 이후 (YYYY-MM-DD HH:mm:ss)'
+          schema:
+            type: string
+        - in: query
+          name: createdAt.to
+          required: false
+          description: 'createdAt, updatedAt : 입력한 값 까지 (YYYY-MM-DD HH:mm:ss)'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/EsdRecordCount'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/esd/{schema}/records':
+    get:
+      tags:
+        - ESD
+      summary: ESD 데이터 조회 (다건)
+      description: ESD 데이터를 모두 조회합니다.
+      operationId: GetEsdRecords
+      parameters:
+        - in: path
+          name: schema
+          required: true
+          description: 스키마 명 (URL Encording 필요)
+          schema:
+            type: string
+        - in: query
+          name: field1
+          required: false
+          description: 입력한 값을 포함
+          schema:
+            type: string
+        - in: query
+          name: field2.from
+          required: false
+          description: 입력한 값 이상
+          schema:
+            type: number
+        - in: query
+          name: field2.to
+          required: false
+          description: 입력한 값 이하
+          schema:
+            type: number
+        - in: query
+          name: field3
+          required: false
+          description: 입력한 값 일치
+          schema:
+            type: boolean
+        - in: query
+          name: createdAt.from
+          required: false
+          description: 'createdAt, updatedAt : 입력한 값 이후 (YYYY-MM-DD HH:mm:ss)'
+          schema:
+            type: string
+        - in: query
+          name: createdAt.to
+          required: false
+          description: 'createdAt, updatedAt : 입력한 값 까지 (YYYY-MM-DD HH:mm:ss)'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - type: object
+                    properties:
+                      result:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/EsdRecord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - ESD
+      summary: ESD 데이터 생성
+      description: ESD 데이터를 한 건 추가합니다.
+      operationId: CreateEsdRecord
+      parameters:
+        - in: path
+          name: schema
+          required: true
+          description: 스키마 명 (URL Encording 필요)
+          schema:
+            type: string
+      requestBody:
+        description: JSON 형식으로 field/value 값 입력
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EsdSampleField'
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - type: object
+                    properties:
+                      result:
+                        $ref: '#/components/schemas/EsdCreateRecord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - ESD
+      summary: ESD 데이터 삭제 (다건)
+      description: ESD 데이터를 여러 건 삭제합니다. 최대 10,000 건까지 삭제되며, 먼저 생성된 순으로 삭제됩니다.
+      operationId: DeleteEsdRecords
+      parameters:
+        - in: path
+          name: schema
+          required: true
+          description: 스키마 명 (URL Encording 필요)
+          schema:
+            type: string
+        - in: query
+          name: field1
+          required: false
+          description: 입력한 값을 포함
+          schema:
+            type: string
+        - in: query
+          name: field2.from
+          required: false
+          description: 입력한 값 이상
+          schema:
+            type: number
+        - in: query
+          name: field2.to
+          required: false
+          description: 입력한 값 이하
+          schema:
+            type: number
+        - in: query
+          name: field3
+          required: false
+          description: 입력한 값 일치
+          schema:
+            type: boolean
+        - in: query
+          name: createdAt.from
+          required: false
+          description: 'createdAt, updatedAt : 입력한 값 이후 (YYYY-MM-DD HH:mm:ss)'
+          schema:
+            type: string
+        - in: query
+          name: createdAt.to
+          required: false
+          description: 'createdAt, updatedAt : 입력한 값 까지 (YYYY-MM-DD HH:mm:ss)'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/EsdDeleteCount'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/esd/{schema}/records/{id}':
+    get:
+      tags:
+        - ESD
+      summary: ESD 데이터 조회 (단건)
+      description: ESD 데이터를 한 건 조회합니다.
+      operationId: GetEsdRecord
+      parameters:
+        - in: path
+          name: schema
+          required: true
+          description: 스키마 명 (URL Encording 필요)
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: 레코드 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - type: object
+                    properties:
+                      result:
+                        $ref: '#/components/schemas/EsdRecord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - ESD
+      summary: ESD 데이터 수정
+      description: 지정한 ESD 데이터를 수정합니다. 모든 필드가 업데이트 처리됩니다.
+      operationId: UpdateEsdRecord
+      parameters:
+        - in: path
+          name: schema
+          required: true
+          description: 스키마 명 (URL Encording 필요)
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: 레코드 ID
+          schema:
+            type: string
+      requestBody:
+        description: JSON 형식으로 field/value 값 입력
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                string_field:
+                  type: string
+                number_field:
+                  type: number
+                boolean_field:
+                  type: boolean
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/EsdUpdateRecord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - ESD
+      summary: ESD 데이터 삭제 (단건)
+      description: ESD 데이터를 한 건 삭제합니다.
+      operationId: DeleteEsdRecord
+      parameters:
+        - in: path
+          name: schema
+          required: true
+          description: 스키마 명 (URL Encording 필요)
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: 레코드 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/esd/{schema}/records/-/export':
+    get:
+      tags:
+        - ESD
+      summary: ESD 데이터 다운로드
+      description: ESD 데이터 전체를 csv 파일로 다운로드합니다.
+      operationId: ExportEsdRecords
+      parameters:
+        - in: path
+          name: schema
+          required: true
+          description: 스키마 명 (URL Encording 필요)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/EsdExport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/esd/{schema}/records/-/import':
+    post:
+      tags:
+        - ESD
+      summary: ESD 데이터 업로드
+      description: ESD 데이터를 파일로 업로드합니다.
+      operationId: ImportEsdRecords
+      parameters:
+        - in: path
+          name: schema
+          required: true
+          description: 스키마 명 (URL Encording 필요)
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/octet-stream:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/EsdImport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/call/cdr/-/count':
+    get:
+      tags:
+        - Call
+      summary: 콜 로그 건수 조회
+      description: 콜 로그의 건수를 조회합니다.
+      operationId: GetCallLogCount
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: direction
+          required: false
+          description: inbound or outbound
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/CallLogCount'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/call/cdr':
+    get:
+      tags:
+        - Call
+      summary: 콜 로그 조회 (다건)
+      description: 콜 로그를 모두 조회합니다.
+      operationId: GetCallLogs
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: direction
+          required: false
+          description: inbound or outbound
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - type: object
+                    properties:
+                      result:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CallLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/call/cdr/{logId}':
+    get:
+      tags:
+        - Call
+      summary: 콜 로그 조회 (단건)
+      description: 콜 로그를 한 건 조회합니다.
+      operationId: GetCallLog
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: logId
+          required: true
+          description: 콜 로그 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - type: object
+                    properties:
+                      result:
+                        $ref: '#/components/schemas/CallLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/call/campaign/{oid}':
+    get:
+      tags:
+        - Campaign
+      summary: 캠페인 아이템 목록 조회
+      description: 캠페인 아이템을 모두 조회합니다.
+      operationId: GetCampaignItems
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: oid
+          required: true
+          description: 캠페인 ID
+          schema:
+            type: string
+        - in: query
+          name: userNumber
+          required: false
+          description: 사용자 전화번호
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - type: object
+                    properties:
+                      result:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CampaignItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Campaign
+      summary: 캠페인 아이템 생성 (다건)
+      description: 캠페인 아이템을 여러건 추가합니다.
+      operationId: CreateCampaignItems
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: oid
+          required: true
+          description: 캠페인 ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CampaignSample'
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/CampaignItemsCreate'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/call/campaign/{oid}/item/{itemId}':
+    get:
+      tags:
+        - Campaign
+      summary: 캠페인 아이템 조회
+      description: 캠페인 아이템을 한 건 조회합니다.
+      operationId: GetCampaignItem
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: oid
+          required: true
+          description: 캠페인 ID
+          schema:
+            type: string
+        - in: path
+          name: itemId
+          required: true
+          description: 캠페인 아이템 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - type: object
+                    properties:
+                      result:
+                        $ref: '#/components/schemas/CampaignItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Campaign
+      summary: 캠페인 아이템 수정
+      description: 캠페인 아이템을 수정합니다.
+      operationId: UpdateCampaignItem
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: oid
+          required: true
+          description: 캠페인 ID
+          schema:
+            type: string
+        - in: path
+          name: itemId
+          required: true
+          description: 캠페인 아이템 ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignSample'
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Campaign
+      summary: 캠페인 아이템 삭제
+      description: 지정한 캠페인 아이템을 삭제합니다.
+      operationId: DeleteCampaignItem
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: oid
+          required: true
+          description: 캠페인 ID
+          schema:
+            type: string
+        - in: path
+          name: itemId
+          required: true
+          description: 캠페인 아이템 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/call/campaign/{oid}/item':
+    post:
+      tags:
+        - Campaign
+      summary: 캠페인 아이템 생성 (단건)
+      description: 캠페인 아이템을 한 건 추가합니다.
+      operationId: CreateCampaignItem
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: oid
+          required: true
+          description: 캠페인 ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignSample'
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - type: object
+                    properties:
+                      result:
+                        $ref: '#/components/schemas/CampaignItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/call/campaign/{oid}/item/-/count':
+    get:
+      tags:
+        - Campaign
+      summary: 캠페인 아이템 건수 조회
+      description: 캠페인 아이템의 건수를 조회합니다.
+      operationId: GetCampaignItemCount
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: oid
+          required: true
+          description: 캠페인 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: userNumber
+          required: false
+          description: 사용자 전화번호
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/CampaignItemCount'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/workspaces/{workspaceId}/intents/-/download':
+    get:
+      tags:
+        - NLP
+      summary: 인텐트 다운로드
+      description: 인텐트 전체를 csv 파일로 다운로드합니다.
+      operationId: ExportIntents
+      parameters:
+        - in: path
+          name: workspaceId
+          required: true
+          description: NLP 워크스페이스 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/IntentsExport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/workspaces/{workspaceId}/intents/-/upload':
+    post:
+      tags:
+        - NLP
+      summary: 인텐트 업로드
+      description: 인텐트를 파일로 업로드합니다.
+      operationId: UploadIntents
+      parameters:
+        - in: path
+          name: workspaceId
+          required: true
+          description: NLP 워크스페이스 ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/workspaces/{workspaceId}/entities/-/download':
+    get:
+      tags:
+        - NLP
+      summary: 엔티티 다운로드
+      description: 엔티티 전체를 csv 파일로 다운로드합니다.
+      operationId: ExportEntities
+      parameters:
+        - in: path
+          name: workspaceId
+          required: true
+          description: NLP 워크스페이스 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/EntitiesExport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/workspaces/{workspaceId}/entities/-/upload':
+    post:
+      tags:
+        - NLP
+      summary: 엔티티 업로드
+      description: 엔티티를 파일로 업로드합니다.
+      operationId: UploadEntities
+      parameters:
+        - in: path
+          name: workspaceId
+          required: true
+          description: NLP 워크스페이스 ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/workspaces/{workspaceId}/training':
+    post:
+      tags:
+        - NLP
+      summary: NLP 트레이닝
+      description: NLP를 트레이닝합니다.
+      operationId: NlpTraining
+      parameters:
+        - in: path
+          name: workspaceId
+          required: true
+          description: NLP 워크스페이스 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/workspaces/{workspaceId}/training/status':
+    get:
+      tags:
+        - NLP
+      summary: NLP 트레이닝 상태 조회
+      description: NLP 워크스페이스의 트레이닝 상태를 확인합니다.
+      operationId: NlpStatus
+      parameters:
+        - in: path
+          name: workspaceId
+          required: true
+          description: NLP 워크스페이스 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/NlpStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/stat/intents':
+    get:
+      tags:
+        - Stat
+      summary: 인텐트 통계 조회
+      description: 지정한 일자의 상위 10 개 인텐트 통계를 조회합니다.
+      operationId: GetStatIntents
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: type
+          required: false
+          description: monthly, weekly, daily
+          schema:
+            type: string
+            default: monthly
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/StatIntents'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/stat/entities':
+    get:
+      tags:
+        - Stat
+      summary: 엔티티 통계 조회
+      description: 지정한 일자의 상위 10 개 엔티티 통계를 조회합니다.
+      operationId: GetStatEntities
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: type
+          required: false
+          description: monthly, weekly, daily
+          schema:
+            type: string
+            default: monthly
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/StatEntities'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/stat/dialogs':
+    get:
+      tags:
+        - Stat
+      summary: 다이얼로그 통계 목록 조회
+      description: 지정한 일자의 다이얼로그 통계 목록을 조회합니다.
+      operationId: GetStatDialogs
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: includeWelcome
+          required: false
+          description: Welcome 포함 여부
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          name: includeAnythingelse
+          required: false
+          description: Anythingelse 포함 여부
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          name: top10
+          required: false
+          description: 상위 10개 보기
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/StatDialogs'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/stat/dialogs/metric/{entry}':
+    get:
+      tags:
+        - Stat
+      summary: 다이얼로그 통계 상세 조회
+      description: 지정한 노드의 다이얼로그 통계를 상세 조회합니다.
+      operationId: GetStatDialog
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: entry
+          required: true
+          description: 노드ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/StatDialogsMetric'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/proejcts/{projectId}/stat/custom':
+    get:
+      tags:
+        - Stat
+      summary: 사용자 정의 통계 목록 조회
+      description: 사용자 정의 통계의 목록을 조회합니다.
+      operationId: GetStatCustoms
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/StatCustom'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/proejcts/{projectId}/stat/custom/{id}/metric':
+    get:
+      tags:
+        - Stat
+      summary: 사용자 정의 통계 상세 조회
+      description: 지정한 차트의 사용자 정의 통계를 상세 조회합니다.
+      operationId: GetStatCustom
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: 차트 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: type
+          required: false
+          description: monthly, weekly, daily
+          schema:
+            type: string
+            default: monthly
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/StatCustomMetric'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/proejcts/{projectId}/stat/transaction/realtime':
+    get:
+      tags:
+        - Stat
+      summary: 실시간 세션/메세지 건수 조회
+      description: 최근 1 시간 내의 분당 세션, 메세지 건수를 조회합니다.
+      operationId: GetStatRealTime
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/StatTransactionRealtime'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/proejcts/{projectId}/stat/user':
+    get:
+      tags:
+        - Stat
+      summary: 사용자/재방문 통계 조회
+      description: 사용자 및 재방문율을 조회합니다.
+      operationId: GetStatUser
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: type
+          required: false
+          description: monthly, daily
+          schema:
+            type: string
+            default: monthly
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/StatUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/audit':
+    get:
+      tags:
+        - Audit
+      summary: 감사 로그 조회
+      description: 감사 로그를 모두 조회합니다.
+      operationId: GetAudit
+      parameters:
+        - in: query
+          name: fromDate
+          required: true
+          description: 시작일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: toDate
+          required: true
+          description: 종료일 (YYYY-MM-DD HH:mm:ss)
+          schema:
+            type: string
+        - in: query
+          name: task
+          required: false
+          description: 태스크 명
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/Audit'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/versions':
+    get:
+      tags:
+        - Version
+      summary: 챗봇 버전 조회
+      description: 챗봇 버전을 조회합니다.
+      operationId: GetVersions
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/ChatbotVersions'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Version
+      summary: 챗봇 버전 생성
+      description: 챗봇 버전을 생성합니다.
+      operationId: CreateVersion
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatbotVersionCreateField'
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - $ref: '#/components/schemas/ChatbotVersionCreate'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/versions/{version}/publish':
+    post:
+      tags:
+        - Version
+      summary: 챗봇 버전 배포
+      description: 챗봇 버전을 배포합니다.
+      operationId: GetVersionPublish
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          description: 버전 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/versions/{version}/export':
+    get:
+      tags:
+        - Version
+      summary: 챗봇 버전 다운로드
+      description: 특정 버전의 챗봇 다이얼로그를 다운로드합니다.
+      operationId: ExportVersion
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          description: 버전 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+                  - type: object
+                    properties:
+                      result:
+                        $ref: '#/components/schemas/ChatbotVersion'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  '/apis/projects/{projectId}/versions/-/import':
+    post:
+      tags:
+        - Version
+      summary: 챗봇 버전 업로드
+      description: 챗봇 다이얼로그를 업로드합니다.
+      operationId: ImportVersion
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: 챗봇 ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatbotVersion'
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Result'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  schemas:
+    Result:
+      type: object
+      properties:
+        resultCode:
+          type: number
+          example: 200
+        resultMessage:
+          type: string
+          example: "OK"
+      required: 
+        - resultCode
+        - resultMessage
+    MessageLogCount:
+      type: object
+      properties:
+        result:
+          type: number
+          example: '455'
+    MessageLogs:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageLogNotruncFalse'
+    MessageLog:
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/MessageLogNotruncTrue'
+    MessageLogNotruncFalse:
+      allOf:
+        - $ref: '#/components/schemas/MessageLogCommon'
+        - type: object
+          properties:
+            input:
+              type: string
+              example: '할부 선결제 해줘'
+            output:
+              type: array
+              items: 
+                oneOf:
+                  - type: string
+                    example: '약관에 동의하시겠습니까?'
+                  - type: string
+                    example: 'frame'
+                  - type: string
+                    example: 'buttons'
+            intent:
+              type: object
+              properties:
+                intent:
+                  type: string
+                  example: 'payment_instant'
+                confidence:
+                  type: number
+                  example: '0.9474306943356045'
+    MessageLogNotruncTrue:
+      allOf:
+        - $ref: '#/components/schemas/MessageLogCommon'
+        - type: object
+          properties:
+            input:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: 'text'
+                text:
+                  type: string
+                  example: '할부 선결제 해줘'
+                data:
+                  type: object
+            output:
+              type: array
+              items:
+                type: object
+                oneOf:
+                  - properties:
+                      type:
+                        type: string
+                        example: 'text'
+                      text:
+                        type: string
+                        example: '약관에 동의하시겠습니까?'
+                  - properties:
+                      type:
+                        type: string
+                        example: 'buttons'
+                      buttons:
+                        type: array
+                        items:
+                          type: object
+                          oneOf:
+                            - properties:
+                                type:
+                                  type: string
+                                  example: 'postback'
+                                label:
+                                  type: string
+                                  example: '네'
+                                analytics:
+                                  type: object
+                                postback:
+                                  type: string
+                                  example: 'pb_0'
+                            - properties:
+                                type:
+                                  type: string
+                                  example: 'postback'
+                                label:
+                                  type: string
+                                  example: '아니요'
+                                analytics:
+                                  type: object
+                                postback:
+                                  type: string
+                                  example: 'pb_1'
+                  - properties:
+                      type:
+                        type: string
+                        example: 'buttons'
+                      buttons:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                              example: 'link'
+                            label:
+                              type: string
+                              example: '홈페이지로 이동'
+                            analytics:
+                              type: object
+                            postback:
+                              type: string
+                              example: 'https://stage.coginsight.net/dashboard/#/'
+        - type: object
+          properties:
+            intents:
+              type: array
+              items:
+                type: object
+                properties:
+                  intent:
+                    type: string
+                    example: 'payment_instant'
+                  confidence:
+                    type: number
+                    example: '0.9474306943356045'
+            entities:
+              type: array
+              items:
+                type: object
+                properties:
+                  entity:
+                    type: string
+                    example: 'instant_type'
+                  value:
+                    type: string
+                    example: '할부'
+            trace:
+              type: array
+              items:
+                type: object
+                oneOf:
+                  - properties:
+                      dialogId:
+                        type: string
+                        example: 'predialog'
+                      nodeId:
+                        type: string
+                        example: 'iNgn6NahukGAbbWfyK7HJG'
+                      label:
+                        type: string
+                        example: '설정'
+                      type:
+                        type: string
+                        example: 'set'
+                  - properties:
+                      dialogId:
+                        type: string
+                        example: 'main'
+                      nodeId:
+                        type: string
+                        example: 'rbtK1BqRkrUAjmWu3ve2uk'
+                      label:
+                        type: string
+                        example: '선결제'
+                      type:
+                        type: string
+                        example: 'node'
+                  - properties:
+                      dialogId:
+                        type: string
+                        example: 'main'
+                      nodeId:
+                        type: string
+                        example: 'a4q3KcdRub8MnTiDTh9qXM'
+                      label:
+                        type: string
+                        example: '약관 동의'
+                      type:
+                        type: string
+                        example: 'output'
+            turn:
+              type: number
+              example: '1'
+            system:
+              type: object
+              properties:
+                device_type:
+                  type: string
+                  example: 'mac'
+                user_agent:
+                  type: object
+                  properties:
+                    family:
+                      type: string
+                      example: 'Chrome'
+                    major:
+                      type: string
+                      example: '113'
+                    minor:
+                      type: string
+                      example: '0'
+                    patch:
+                      type: string
+                      example: '0'
+                    source:
+                      type: string
+                      example: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36'
+                lang:
+                  type: string
+                  example: 'ko'
+            node_visited:
+              type: object
+              properties:
+                entry:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      example: 'condition'
+                    label:
+                      type: string
+                      example: '선결제'
+                    id:
+                      type: string
+                      example: 'rYb1n76JHUjoE4B62dqzFu'
+                    ts:
+                      type: string
+                      example: '1687402283001'
+                stop:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      example: 'output'
+                    label:
+                      type: string
+                      example: '약관 동의 안내'
+                    id:
+                      type: string
+                      example: '4jShzkzHiJSjwEaii55Efu'
+    MessageLogCommon:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '1234abcdef5678ghijk902'
+        projectId:
+          type: string
+          example: '12345a-7b90-987c-543-21d12345f'
+        sessionId:
+          type: string
+          example: '12345a-7b90-987c-543-21d12345s'
+        name:
+          type: string
+          example: '12345a-7b90-987c-543-21d12345U'
+        channel:
+          type: string
+          example: 'web'
+        error:
+          type: string
+          example: null
+        at:
+          type: string
+          example: '2023-08-17T05:39:49.734Z'
+        context:
+          type: object
+    HistoryCount:
+      type: object
+      properties:
+        result:
+          type: number
+          example: '14'
+    Histories:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              startAt:
+                type: string
+                example: '2023-08-17T05:32:22.787Z'
+              endAt:
+                type: string
+                example: '2023-08-17T05:39:49.734Z'
+              msgCount:
+                type: number
+                example: '7'
+              projectId:
+                type: string
+                example: '12345a-7b90-987c-543-21d12345f'
+              channel:
+                type: string
+                example: 'web'
+              name:
+                type: string
+                example: '12345a-7b90-987c-543-21d12345U'
+              sessionId:
+                type: string
+                example: '12345a-7b90-987c-543-21d12345s'
+              _history_url:
+                type: string
+                example: '/service/#/chat-history?projectId=12345a-7b90-987c-543-21d12345f&token=abcdefg'
+    FeedbackCount:
+      type: object
+      properties:
+        result:
+          type: number
+          example: '20'
+    Feedbacks:
+      type: object
+      properties:
+        resultCode:
+          type: number
+          example: 200
+        resultMessage:
+          type: string
+          example: "OK"
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+                example: '1234abcdef5678ghijk904'
+              projectId:
+                type: string
+                example: '12345a-7b90-987c-543-21d12345f'
+              sessionId:
+                type: string
+                example: '12345a-7b90-987c-543-21d12345s3'
+              name:
+                type: string
+                example: '12345a-7b90-987c-543-21d12345U2'
+              feedbackName:
+                type: string
+                example: '배송평가'
+              star:
+                type: number
+                example: '5'
+              comment:
+                type: string
+                example: '배송이 빨라서 좋습니다.'
+              resolve:
+                type: boolean
+                example: 'true'
+              at:
+                type: string
+                example: '2023-08-16T05:39:49.734Z'
+    EsdRecordCount:
+      type: object
+      properties:
+        result:
+          type: number
+          example: '250'
+    EsdRecord:
+      type: object
+      oneOf:
+        - properties:
+            _id:
+              type: string
+              example: '1234abcdef5678ghijk908'
+            createdAt:
+              type: string
+              example: '2023-08-17T07:46:13.596Z'
+            updatedAt:
+              type: string
+              example: '2023-08-17T07:46:13.596Z'
+            link_id:
+              type: string
+              example: 'benefit_qualification'
+            label:
+              type: string
+              example: '이용실적 혜택 안내'
+            link:
+              type: string
+              example: 'https://www.card.com/cpb/sr/01'
+            description:
+              type: string
+              example: '이용실적 혜택 안내 웹페이지 연결'
+        - properties:
+            _id:
+              type: string
+              example: '1234abcdef5678ghijk907'
+            createdAt:
+              type: string
+              example: '2023-08-17T07:46:13.596Z'
+            updatedAt:
+              type: string
+              example: '2023-08-17T07:46:13.596Z'
+            link_id:
+              type: string
+              example: 'benefit_received'
+            label:
+              type: string
+              example: '이용금액/혜택내역 확인'
+            link:
+              type: string
+              example: 'https://www.card.com/cpb/sr/02'
+            description:
+              type: string
+              example: '이용금액/혜택내역 안내'
+    EsdDeleteCount:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            deleteCount:
+              type: number
+              example: '2430'
+    EsdUpdateRecord:
+      type: object
+      properties:
+        result:
+          allOf:
+            - type: object
+              properties:
+                updatedAt:
+                  type: string
+                  example: '2023-08-17T08:16:13.596Z'
+            - $ref: '#/components/schemas/EsdSampleField'
+    EsdCreateRecord:
+      type: object
+      properties:
+        result:
+          allOf:
+            - type: object
+              properties:
+                _id:
+                  type: string
+                  example: '64ddce58df6b7a0f25ab933a'
+                createdAt:
+                  type: string
+                  example: '2023-08-17T07:46:13.596Z'
+                updatedAt:
+                  type: string
+                  example: '2023-08-17T07:46:13.596Z'
+            - $ref: '#/components/schemas/EsdSampleField'
+    EsdSampleField:
+      type: object
+      properties:
+        string_field:
+          type: string
+        number_field:
+          type: number
+        boolean_field:
+          type: boolean
+    EsdExport:
+      type: string
+      example: |
+        string,number,boolean,file,geo,createdAt,updatedAt
+        "1231234",1231234,false,,,"2023-07-10 16:38:22.790","2023-08-16 19:24:51.297"
+        "1231234",1231234,false,,,"2023-01-17 14:28:24.667","2023-06-08 16:39:05.027"
+    EsdImport:
+      type: object
+      properties:
+        dataCount:
+          type: number
+          example: '300'
+        insertedCount:
+          type: number
+          example: '300'
+        errors: 
+          type: array
+          items:
+            type: object
+          maxItems: 0
+    CallLogCount:
+      type: object
+      properties:
+        result:
+          type: number
+          example: '110'
+    CallLog:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '64ae37c744d633b0b820cac9'
+        projectId:
+          type: string
+          example: '12345a-7b90-987c-543-21d12345f'
+        callerId:
+          type: string
+          example: '211.233.26.247_e8vt2_K6Jze021'
+        direction:
+          type: string
+          example: 'inbound'
+        agentType:
+          type: string
+          example: 'cogi'
+        uaNumber:
+          type: string
+          example: '07080191234'
+        startTime:
+          type: string
+          example: '2023-07-12T05:19:03.267Z'
+        endTime:
+          type: string
+          example: '2023-07-12T05:19:11.771Z'
+        status:
+          type: number
+          example: '200'
+        dialogStatus:
+          type: number
+          example: '201'
+        loggedAt:
+          type: string
+          example: '2023-07-12T05:19:11.798Z'
+        userKey:
+          type: string
+          example: '211.233.26.247_e8vt2_K6Jze021'
+        sessionId:
+          type: string
+          example: 'd1d729ae-70cb-41a1-b6c5-499b44c23c78'
+        userNumber:
+          type: string
+          example: '********678'
+    CampaignItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '81801496-eb6d-487f-b126-798af3e14a03'
+        outboundId:
+          type: string
+          example: '32012ebe-c613-4346-9e30-f363187fd405'
+        projectId:
+          type: string
+          example: '25ac4917-bb93-450b-99e9-f3a1ea68113f'
+        userNumber:
+          type: string
+          example: 'AhXULC14yDePCF7SXB3YPw'
+        userKey:
+          type: string
+          example: 'b52931d4-5229-4768-91f1-22894e442131'
+        uaNumber:
+          type: string
+          example: '07080191234'
+        scheduledAt:
+          type: string
+          example: '2023-07-12T05:19:11.798Z'
+        reserveDate:
+          type: string
+          example: '2023-07-12T05:19:11.798Z'
+        status:
+          type: number
+          example: '3'
+        data:
+          type: object
+          properties:
+            task:
+              type: string
+              example: '001'
+        callerID: 
+          type: string
+          example: '63b5d4ee-04a6-4205-ad00-0313995568c4'
+        callingCount:
+          type: number
+          example: '0'
+        createdAt:
+          type: string
+          example: '2023-07-12T05:19:11.798Z'
+        updatedAt:
+          type: string
+          example: '2023-07-12T05:19:11.798Z'
+    CampaignItemsCreate:
+      type: object
+      properties:
+        dataCount:
+          type: number
+          example: '10'
+        insertedCount:
+          type: number
+          example: '10'
+    CampaignItemCount:
+      type: object
+      properties:
+        result:
+          type: number
+          example: '5'
+    CampaignSample:
+      type: object
+      properties:
+        userNumber:
+          type: string
+          example: '01012345678'
+        userKey:
+          type: string
+          example: 'b52931d4-5229-4768-91f1-22894e442131'
+        reserveDate:
+          type: string
+          example: '2023-07-12T05:19:11.798Z'
+        data:
+          type: object
+          properties:
+            task:
+              type: string
+              example: '001'
+    IntentsExport:
+      type: string
+      example: |
+        "intent","example"
+        "menu","오늘 뭐 먹을까"
+        "menu","점심 메뉴 추천해줘"
+        "smalltalk","오늘 내 생일이얌"
+        "smalltalk","내일 놀러갈까?"
+        "smalltalk","오늘이 금요일이면 좋겠다."
+        "smalltalk","퇴근할때 치킨시켜야지~"
+        "greeting","하이"
+        "greeting","반가워"
+        "greeting","안녕"
+        "greeting","안녕하세요"
+        "event","이벤트"
+        "event","이벤트 참여"
+    EntitiesExport:
+      type: string
+      example: |
+        "entity","value","type","synonyms"
+        "store","CU","synonyms","씨유"
+        "store","GS25","synonyms","지에스"
+        "card_feature","교통카드","synonyms","티머니"
+        "card_feature","하이패스","patterns","(하이|hi|Hi|HI)+\s?((패|페)+(스|쓰)|(p|P)ass|PASS)+","(고속도로|톨게이트)+\s?(카드|비)?"
+    NlpStatus:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            training:
+              type: boolean
+              example: 'true'
+    StatIntents:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            columns:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                    example: 'Date'
+                  - type: string
+                    example: 'greeting'
+                  - type: string
+                    example: 'payment_instant'
+            data:
+              type: array
+              items:
+                oneOf:
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '2023-08-17'
+                        - type: object
+                          properties:
+                            accuracy:
+                              type: number
+                              example: '1'
+                            confidence:
+                              type: number
+                              example: '0.99'
+                            count:
+                              type: number
+                              example: '28'
+                            hit:
+                              type: number
+                              example: '28'
+                        - type: object
+                          properties:
+                            accuracy:
+                              type: number
+                              example: '1'
+                            confidence:
+                              type: number
+                              example: '0.7'
+                            count:
+                              type: number
+                              example: '10'
+                            hit:
+                              type: number
+                              example: '10'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '2023-08-18'
+                        - type: object
+                          properties:
+                            accuracy:
+                              type: number
+                              example: '1'
+                            confidence:
+                              type: number
+                              example: '0.98'
+                            count:
+                              type: number
+                              example: '5'
+                            hit:
+                              type: number
+                              example: '5'
+                        - type: object
+                          properties:
+                            accuracy:
+                              type: number
+                              example: '1'
+                            confidence:
+                              type: number
+                              example: '0.87'
+                            count:
+                              type: number
+                              example: '7'
+                            hit:
+                              type: number
+                              example: '7'
+    StatEntities:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            columns:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                    example: 'Date'
+                  - type: string
+                    example: 'sys-number'
+                  - type: string
+                    example: 'store'
+            data:
+              type: array
+              items:
+                oneOf:
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '2023-08-17'
+                        - type: object
+                          properties:
+                            accuracy:
+                              type: number
+                              example: '1'
+                            confidence:
+                              type: number
+                              example: '0'
+                            count:
+                              type: number
+                              example: '43'
+                            hit:
+                              type: number
+                              example: '43'
+                        - type: object
+                          properties:
+                            accuracy:
+                              type: number
+                              example: '1'
+                            confidence:
+                              type: number
+                              example: '0'
+                            count:
+                              type: number
+                              example: '2'
+                            hit:
+                              type: number
+                              example: '2'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '2023-08-18'
+                        - type: object
+                          properties:
+                            accuracy:
+                              type: number
+                              example: '1'
+                            confidence:
+                              type: number
+                              example: '0'
+                            count:
+                              type: number
+                              example: '9'
+                            hit:
+                              type: number
+                              example: '9'
+                        - type: object
+                          properties:
+                            accuracy:
+                              type: number
+                              example: '1'
+                            confidence:
+                              type: number
+                              example: '0'
+                            count:
+                              type: number
+                              example: '1'
+                            hit:
+                              type: number
+                              example: '1'
+    StatDialogs:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            columns:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                    example: 'id'
+                  - type: string
+                    example: 'label'
+                  - type: string
+                    example: 'visit'
+                  - type: string
+                    example: 'complete'
+                  - type: string
+                    example: 'exit'
+                  - type: string
+                    example: 'pending'
+            data:
+              type: array
+              items:
+                oneOf:
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: 'eaNtKZdkQeUtKhA7GEhFUg'
+                        - type: string
+                          example: '내역 조회'
+                        - type: number
+                          example: '115'
+                        - type: number
+                          example: '100'
+                        - type: number
+                          example: '9'
+                        - type: number
+                          example: '6'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: 'qqVtXaVAHRJzJtLQBs7ueZ'
+                        - type: string
+                          example: '포인트 안내'
+                        - type: number
+                          example: '62'
+                        - type: number
+                          example: '58'
+                        - type: number
+                          example: '3'
+                        - type: number
+                          example: '1'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: 'afkmc39HPSjRpzCkrtgJjQ'
+                        - type: string
+                          example: '상담사 연결'
+                        - type: number
+                          example: '30'
+                        - type: number
+                          example: '29'
+                        - type: number
+                          example: '1'
+                        - type: number
+                          example: '0'
+    StatDialogsMetric:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            inflow:
+              type: object
+              properties:
+                columns:
+                  type: array
+                  items:
+                    oneOf:
+                      - type: string
+                        example: 'id'
+                      - type: string
+                        example: 'label'
+                      - type: string
+                        example: 'count'
+                data:
+                  type: array
+                  items:
+                    oneOf:
+                      - type: array
+                        items:
+                          oneOf: 
+                            - type: string
+                              example: 'direct'
+                            - type: string
+                              example: 'direct'
+                            - type: number
+                              example: '20'
+                      - type: array
+                        items:
+                          oneOf: 
+                            - type: string
+                              example: 'pG5Nw2CWdwYy2SfSxvMTJd'
+                            - type: string
+                              example: '한도 문의 - 한도 안내 (exit)'
+                            - type: number
+                              example: '8'
+                      - type: array
+                        items:
+                          oneOf: 
+                            - type: string
+                              example: 'fEFcnTpNtf7P1ogn2ejAtq'
+                            - type: string
+                              example: '포인트 안내 - 결제 포인트 안내 (exit)'
+                            - type: number
+                              example: '11'
+            visitflow:
+              type: object
+              properties:
+                columns:
+                  type: array
+                  items:
+                    oneOf:
+                      - type: string
+                        example: 'id'
+                      - type: string
+                        example: 'label'
+                      - type: string
+                        example: 'count'
+                data:
+                  type: array
+                  items:
+                    oneOf:
+                      - type: array
+                        items:
+                          oneOf: 
+                            - type: string
+                              example: '9R4CmBxKCxNMBoXTCMhUSN'
+                            - type: string
+                              example: '결제 내역 안내 (complete)'
+                            - type: number
+                              example: '21'
+                      - type: array
+                        items:
+                          oneOf: 
+                            - type: string
+                              example: '3jDAyTiiiNeX6mGVFTLsXv'
+                            - type: string
+                              example: '기간별 조회 안내 (exit)'
+                            - type: number
+                              example: '4'
+                      - type: array
+                        items:
+                          oneOf: 
+                            - type: string
+                              example: 'arts9DJmGBi44dkaKkeNNz'
+                            - type: string
+                              example: '날짜 선택 (pending)'
+                            - type: number
+                              example: '5'
+            exitflow:
+              type: object
+              properties:
+                columns:
+                  type: array
+                  items:
+                    oneOf:
+                      - type: string
+                        example: 'id'
+                      - type: string
+                        example: 'label'
+                      - type: string
+                        example: 'count'
+                data:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      oneOf: 
+                        - type: string
+                          example: 'welcome'
+                        - type: string
+                          example: '기간별 조회 안내 (exit) -> Welcome'
+                        - type: number
+                          example: '4'
+    StatCustom:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: object
+            oneOf:
+              - properties:
+                  id:
+                    type: string
+                    example: '04788398-2ef8-49b4-bb57-79938f32b9e1'
+                  title:
+                    type: string
+                    example: '카드 추천'
+                  createdAt:
+                    type: string
+                    example: '2023-06-08T01:52:47.058Z'
+              - properties:
+                  id:
+                    type: string
+                    example: 'bade8ad2-b1e4-4415-95b1-ddfe153351d2'
+                  title:
+                    type: string
+                    example: 'channel'
+                  createdAt:
+                    type: string
+                    example: '2023-07-20T01:40:55.650Z'
+              - properties:
+                  id:
+                    type: string
+                    example: 'c04f3058-4ce0-469b-8870-832be5d4362b'
+                  title:
+                    type: string
+                    example: 'control'
+                  createdAt:
+                    type: string
+                    example: '2022-08-31T01:18:45.598Z'
+    StatCustomMetric:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            columns:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                    example: 'Date'
+                  - type: string
+                    example: '메세지 건수'
+                  - type: string
+                    example: '세션 건수'
+                  - type: string
+                    example: '사용자 건수'
+            data:
+              type: array
+              items:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                      example: '2023-08'
+                    - type: number
+                      example: '703'
+                    - type: number
+                      example: '195'
+                    - type: number
+                      example: '122'
+    StatTransactionRealtime:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            columns:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                    example: 'time'
+                  - type: string
+                    example: 'session'
+                  - type: string
+                    example: 'message'
+            data:
+              type: array
+              items:
+                oneOf:
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:00'
+                        - type: number
+                          example: '6'
+                        - type: number
+                          example: '13'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:01'
+                        - type: number
+                          example: '10'
+                        - type: number
+                          example: '20'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:02'
+                        - type: number
+                          example: '8'
+                        - type: number
+                          example: '10'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:03'
+                        - type: number
+                          example: '7'
+                        - type: number
+                          example: '15'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:04'
+                        - type: number
+                          example: '9'
+                        - type: number
+                          example: '10'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:05'
+                        - type: number
+                          example: '16'
+                        - type: number
+                          example: '18'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:06'
+                        - type: number
+                          example: '5'
+                        - type: number
+                          example: '12'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:07'
+                        - type: number
+                          example: '3'
+                        - type: number
+                          example: '16'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:08'
+                        - type: number
+                          example: '7'
+                        - type: number
+                          example: '9'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:09'
+                        - type: number
+                          example: '10'
+                        - type: number
+                          example: '10'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:10'
+                        - type: number
+                          example: '15'
+                        - type: number
+                          example: '12'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:11'
+                        - type: number
+                          example: '6'
+                        - type: number
+                          example: '15'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:12'
+                        - type: number
+                          example: '3'
+                        - type: number
+                          example: '4'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:13'
+                        - type: number
+                          example: '7'
+                        - type: number
+                          example: '7'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:14'
+                        - type: number
+                          example: '2'
+                        - type: number
+                          example: '10'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:15'
+                        - type: number
+                          example: '7'
+                        - type: number
+                          example: '13'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:16'
+                        - type: number
+                          example: '9'
+                        - type: number
+                          example: '16'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:17'
+                        - type: number
+                          example: '13'
+                        - type: number
+                          example: '12'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:18'
+                        - type: number
+                          example: '8'
+                        - type: number
+                          example: '9'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:19'
+                        - type: number
+                          example: '3'
+                        - type: number
+                          example: '5'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:20'
+                        - type: number
+                          example: '8'
+                        - type: number
+                          example: '9'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:21'
+                        - type: number
+                          example: '9'
+                        - type: number
+                          example: '8'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:22'
+                        - type: number
+                          example: '12'
+                        - type: number
+                          example: '16'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:23'
+                        - type: number
+                          example: '16'
+                        - type: number
+                          example: '10'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:24'
+                        - type: number
+                          example: '13'
+                        - type: number
+                          example: '12'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:25'
+                        - type: number
+                          example: '15'
+                        - type: number
+                          example: '9'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:26'
+                        - type: number
+                          example: '11'
+                        - type: number
+                          example: '13'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:27'
+                        - type: number
+                          example: '9'
+                        - type: number
+                          example: '9'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:28'
+                        - type: number
+                          example: '16'
+                        - type: number
+                          example: '11'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:29'
+                        - type: number
+                          example: '21'
+                        - type: number
+                          example: '16'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '10:30'
+                        - type: number
+                          example: '9'
+                        - type: number
+                          example: '10'
+    StatUser:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            columns:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                    example: 'Date'
+                  - type: string
+                    example: 'user'
+                  - type: string
+                    example: 'revisit'
+            data:
+              type: array
+              items:
+                oneOf:
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '08-17'
+                        - type: number
+                          example: '254'
+                        - type: number
+                          example: '98'
+                  - type: array
+                    items:
+                      oneOf:
+                        - type: string
+                          example: '08-18'
+                        - type: number
+                          example: '350'
+                        - type: number
+                          example: '123'
+    Audit:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties:
+                  at:
+                    type: string
+                    example: '2023-08-17T08:39:14.270Z'
+                  app:
+                    type: string
+                    example: 'dashboard'
+                  task:
+                    type: string
+                    example: 'CHATBOT_LOG_LIST'
+                  domainId:
+                    type: string
+                    example: '123456-7890-9876-543-21012345'
+                  resourceDomainId:
+                    type: string
+                    example: '123456-7890-9876-543-21012345'
+                  resourceKey:
+                    type: string
+                    example: 'projectId'
+                  resourceId:
+                    type: string
+                    example: '062e3602-c98f-41bb-9d62-45b871e88825'
+                  resourceName:
+                    type: string
+                    example: '[DEV] 테스트 챗봇'
+                  clientIP:
+                    type: string
+                    example: '127.0.0.1'
+                  params:
+                    type: string
+                    example: "{\"at\":\"1,3,2023-08-17T15:00:00.000Z,2023-08-18T14:59:59.999Z\",\"name\":\"1\",\"sessionId\":\"1\",\"channel\":\"1\",\"input\":\"1\",\"error\":\"1\"}"
+                  resultCode:
+                    type: number
+                    example: '200'
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: '12345a-7b90-987c-543-21d12345U'
+                      displayName:
+                        type: string
+                        example: '이춘향'
+                      name:
+                        type: string
+                        example: 'ch.lee@mindwareworks.com'
+                  resourceDomainName:
+                    type: string
+                    example: 'TEST_DOMAIN'
+              - type: object
+                properties:
+                  at:
+                    type: string
+                    example: '2023-08-17T08:02:29.615Z'
+                  app:
+                    type: string
+                    example: 'dashboard'
+                  task:
+                    type: string
+                    example: 'OPENAPI_STAT_DIALOGS'
+                  domainId:
+                    type: string
+                    example: '123456-7890-9876-543-21012345'
+                  resourceDomainId:
+                    type: string
+                    example: '123456-7890-9876-543-21012345'
+                  resourceKey:
+                    type: string
+                    example: 'projectId'
+                  resourceId:
+                    type: string
+                    example: '062e3602-c98f-41bb-9d62-45b871e88825'
+                  resourceName:
+                    type: string
+                    example: '[DEV] 테스트 챗봇'
+                  clientIP:
+                    type: string
+                    example: '127.0.0.1'
+                  params:
+                    type: string
+                    example: "{}"
+                  resultCode:
+                    type: number
+                    example: '200'
+                  user:
+                    type: string
+                    example: 'OPENAPI'
+                  resourceDomainName:
+                    type: string
+                    example: 'TEST_DOMAIN'
+              - type: object
+                properties:
+                  at:
+                    type: string
+                    example: '2023-08-18T02:24:01.619Z'
+                  app:
+                    type: string
+                    example: null
+                  task:
+                    type: string
+                    example: 'USER_LOGIN'
+                  domainId:
+                    type: string
+                    example: '123456-7890-9876-543-21012345'
+                  resourceDomainId:
+                    type: string
+                    example: '123456-7890-9876-543-21012345'
+                  clientIP:
+                    type: string
+                    example: '127.0.0.1'
+                  params:
+                    type: string
+                    example: "{\"name\":\"ch.lee@mindwareworks.com\"}"
+                  resultCode:
+                    type: number
+                    example: '200'
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: '12345a-7b90-987c-543-21d12345U'
+                      displayName:
+                        type: string
+                        example: '이춘향'
+                      name:
+                        type: string
+                        example: 'ch.lee@mindwareworks.com'
+                  resourceDomainName:
+                    type: string
+                    example: 'TEST_DOMAIN'
+    ChatbotVersions:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties:
+                  version:
+                    type: string
+                    example: 'DOds0vEWtFGgxw'
+                  name:
+                    type: string
+                    example: 'v1.0.2'
+                  description:
+                    type: string
+                    example: "1) 웰컴 이벤트 안내\n- 포인트 룰렛\n- 매일 출석 체크\n2) FAQ 내용 추가\n3) 환불 정책 변경 안내"
+                  at:
+                    type: string
+                    example: '2023-07-27T07:11:29.972Z'
+              - type: object
+                properties:
+                  version:
+                    type: string
+                    example: 'EsvfTVODuGQCHg'
+                  name:
+                    type: string
+                    example: 'v1.0.1'
+                  description:
+                    type: string
+                    example: "1) 공지사항 수정 (카드 점검 공지 삭제)\n2) 멤버십 추가"
+                  at:
+                    type: string
+                    example: '2023-07-27T07:11:29.972Z'
+                  published:
+                    type: boolean
+                    example: true
+                  publishedBy:
+                    type: string
+                    example: '홍길동'
+              - type: object
+                properties:
+                  version:
+                    type: string
+                    example: 'DXHuxFK1vzjktQ'
+                  name:
+                    type: string
+                    example: 'v1.0.0'
+                  description:
+                    type: string
+                    example: 'v1.0.0 - 오픈'
+                  at:
+                    type: string
+                    example: '2023-07-27T07:11:29.972Z'
+    ChatbotVersionCreateField:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'v2.5.2'
+        description:
+          type: string
+          example: "- 이벤트 종료 안내\n- 버그 수정"
+    ChatbotVersionCreate:
+      type: object
+      properties:
+        result:
+          allOf:
+            - type: object
+              properties:
+                projectId:
+                  type: string
+                  example: '062e3602-c98f-41bb-9d62-45b871e88825'
+                version:
+                  type: string
+                  example: '08JsF3X1QKvRBQ'
+                at:
+                  type: string
+                  example: '2023-07-27T07:12:30.086Z'
+            - $ref: '#/components/schemas/ChatbotVersionCreateField'
+    ChatbotVersion:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '062e3602-c98f-41bb-9d62-45b871e88825'
+        name:
+          type: string
+          example: '[DEV] 테스트 챗봇'
+        exportedAt:
+          type: string
+          example: '2023-08-17T03:16:11.697Z'
+        dialogs:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties:
+                  id:
+                    type: string
+                    example: 'predialog'
+                  name:
+                    type: string
+                    example: 'Pre Dialog'
+                  then:
+                    type: array
+                    items:
+                      type: object
+                    maxItems: 0
+              - type: object
+                properties:
+                  id:
+                    type: string
+                    example: 'postdialog'
+                  name:
+                    type: string
+                    example: 'Post Dialog'
+                  then:
+                    type: array
+                    items:
+                      type: string
+                      example: 'error'
+                  nodes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 'error'
+                        condition:
+                          type: string
+                          example: '_error'
+                        type:
+                          type: string
+                          example: 'output'
+                        label:
+                          type: string
+                          example: '에러메세지'
+                        config:
+                          type: object
+                          properties:
+                            items:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  type:
+                                    type: string
+                                    example: 'text'
+                                  condition:
+                                    type: string
+                                    example: ''
+                                  channels:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        name:
+                                          type: string
+                                          example: 'Web'
+                                        use:
+                                          type: boolean
+                                          example: 'true'
+                                  text:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        condition:
+                                          type: string
+                                          example: ''
+                                        texts:
+                                          type: array
+                                          items:
+                                            type: string
+                                            example: "에러가 발생했습니다.\n- ${_error}"
+                            waitInput:
+                              type: boolean
+                              example: 'false'
+              - type: object
+                properties:
+                  id:
+                    type: string
+                    example: 'main'
+                  name:
+                    type: string
+                    example: 'Main Dialog'
+                  nodes:
+                    type: array
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 'welcome'
+                            type:
+                              type: string
+                              example: 'welcome'
+                            label:
+                              type: string
+                              example: 'Welcome'
+                            condition:
+                              type: string
+                              example: '_welcome'
+                            then:
+                              type: array
+                              items:
+                                type: string
+                                example: 'welcome_output'
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 'anythingelse'
+                            type:
+                              type: string
+                              example: 'anythingelse'
+                            label:
+                              type: string
+                              example: 'Anythingelse'
+                            then:
+                              type: array
+                              items:
+                                type: string
+                                example: 'anythingelse_output'
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 'welcome_output'
+                            type:
+                              type: string
+                              example: 'output'
+                            label:
+                              type: string
+                              example: '안녕하세요'
+                            config:
+                              type: object
+                              properties:
+                                items:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      type:
+                                        type: string
+                                        example: 'text'
+                                      condition:
+                                        type: string
+                                        example: ''
+                                      channels:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            name:
+                                              type: string
+                                              example: 'Web'
+                                            use:
+                                              type: boolean
+                                              example: 'true'
+                                      text:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            condition:
+                                              type: string
+                                              example: ''
+                                            texts:
+                                              type: array
+                                              items:
+                                                type: string
+                                                example: "안녕하세요"
+                                waitInput:
+                                  type: boolean
+                                  example: 'false'
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 'anythingelse_output'
+                            type:
+                              type: string
+                              example: 'output'
+                            label:
+                              type: string
+                              example: '다시 말씀해주세요.'
+                            config:
+                              type: object
+                              properties:
+                                items:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      type:
+                                        type: string
+                                        example: 'text'
+                                      condition:
+                                        type: string
+                                        example: ''
+                                      channels:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            name:
+                                              type: string
+                                              example: 'Web'
+                                            use:
+                                              type: boolean
+                                              example: 'true'
+                                      text:
+                                        type: array
+                                        items:
+                                          type: object
+                                          properties:
+                                            condition:
+                                              type: string
+                                              example: ''
+                                            texts:
+                                              type: array
+                                              items:
+                                                oneOf:
+                                                  - type: string
+                                                    example: '무슨 말씀이신지 잘 모르겠어요'
+                                                  - type: string
+                                                    example: '알아듣기 쉽게 다시 말씀해주시면 좋겠어요'
+                                                  - type: string
+                                                    example: '무슨 뜻인지 잘 모르겠어요'
+                                waitInput:
+                                  type: boolean
+                                  example: 'false'
+                  then:
+                    type: array
+                    items: 
+                      oneOf:
+                        - type: string
+                          example: 'welcome'
+                        - type: string
+                          example: 'anythingelse'
+  responses:
+    Unauthorized:
+      description: 인증 오류
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              resultCode:
+                type: number
+                example: 401
+              resultMessage:
+                type: string
+                example: "A service that requires login"
+            required: 
+              - resultCode
+              - resultMessage
+  securitySchemes:
+    DomainID:
+      type: apiKey
+      in: header
+      name: coginsight-domain-id
+    APIKey:
+      type: apiKey
+      in: header
+      name: coginsight-api-key
+security:
+  - DomainID: []
+    APIKey: []
